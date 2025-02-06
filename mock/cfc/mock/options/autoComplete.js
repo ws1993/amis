@@ -1,44 +1,48 @@
-const db =  [
-    {
-        "label": "zhugeliang",
-        "value": "1"
-    },
+const db = [
+  {
+    label: 'zhugeliang',
+    value: '1'
+  },
 
-    {
-        "label": "zhongwuyan",
-        "value": "2"
-    },
+  {
+    label: 'zhongwuyan',
+    value: '2'
+  },
 
-    {
-        "label": "buzhihuowu",
-        "value": "3"
-    },
+  {
+    label: 'buzhihuowu',
+    value: '3'
+  },
 
-    {
-        "label": "zhongkui",
-        "value": "4"
-    },
+  {
+    label: 'zhongkui',
+    value: '4'
+  },
 
-    {
-        "label": "luna",
-        "value": "5"
-    },
+  {
+    label: 'luna',
+    value: '5'
+  },
 
-    {
-        "label": "wangzhaojun",
-        "value": "6"
-    }
+  {
+    label: 'wangzhaojun',
+    value: '6'
+  }
 ];
 
+module.exports = function (req, res) {
+  const labelField = req.query.labelField || 'label';
+  const valueField = req.query.valueField || 'value';
+  const term = req.query.term || '';
+  const list = db.map(item => ({[labelField]: item.label, [valueField]: item.value}))
 
-module.exports = function(req, res) {
-    const term = req.query.term || '';
-
-    res.json({
-        status: 0,
-        msg: '',
-        data: term ? db.filter(function(item) {
-            return term ? ~item.label.indexOf(term) : false;
-        }) : db
-    });
-}
+  res.json({
+    status: 0,
+    msg: '',
+    data: term
+      ? list.filter(function (item) {
+          return term ? ~item.label.indexOf(term) : false;
+        })
+      : list
+  });
+};

@@ -1,26 +1,28 @@
 import React from 'react';
-import NotFound from '../../src/components/404';
-import Layout from '../../src/components/Layout';
-import AsideNav from '../../src/components/AsideNav';
 import {
+  NotFound,
+  Layout,
+  AsideNav,
   AlertComponent,
   Button,
   Drawer,
   Spinner,
-  ToastComponent
-} from '../../src/components/index';
-import {eachTree, mapTree} from '../../src/utils/helper';
-import {Icon} from '../../src/components/icons';
-import '../../src/locale/en-US';
-import {withRouter} from 'react-router';
-import Select from '../../src/components/Select';
-import InputBox from '../../src/components/InputBox';
+  ToastComponent,
+  Select,
+  SearchBox,
+  InputBox
+} from 'amis';
+import {eachTree} from 'amis-core';
+import 'amis-ui/lib/locale/en-US';
+import {withRouter} from 'react-router-dom';
+// @ts-ignore
 import DocSearch from './DocSearch';
 import Doc from './Doc';
 import DocNavCN from './DocNavCN';
-import Example, {examples} from './Example';
-import CSSDocs, {cssDocs} from './CssDocs';
-import Components, {components} from './Components';
+// @ts-ignore
+import Example from './Example';
+import CSSDocs from './CssDocs';
+import Components from './Components';
 import {
   BrowserRouter as Router,
   Route,
@@ -58,7 +60,7 @@ const themes = [
     value: 'ang'
   },
   {
-    label: 'Dark',
+    label: '暗黑',
     ns: 'dark-',
     value: 'dark'
   }
@@ -92,7 +94,7 @@ const docVersions = [
   {
     label: '主干版本',
     value: '',
-    url: '/zh-CN/docs/start/1-2-0'
+    url: '/amis/zh-CN/docs/index'
   },
   {
     label: '1.1.x 文档',
@@ -139,8 +141,9 @@ class BackTop extends React.PureComponent {
     );
   }
 }
+
 // @ts-ignore
-@withRouter // @ts-ignore
+@withRouter
 export class App extends React.PureComponent<{
   location: Location;
 }> {
@@ -293,12 +296,21 @@ export class App extends React.PureComponent<{
             >
               示例
             </NavLink>
-            <a
-              href="https://github.com/fex-team/amis-editor-demo"
-              target="_blank"
-            >
-              编辑器
-            </a>
+            {process.env.NODE_ENV === 'development' ? (
+              <>
+                <a href={`/packages/amis-ui/#/basic/button`}>UI控件</a>
+                <a href={`/packages/amis-editor/`}>编辑器</a>
+              </>
+            ) : (
+              <>
+                <a
+                  href="https://github.com/fex-team/amis-editor-demo"
+                  target="_blank"
+                >
+                  编辑器
+                </a>
+              </>
+            )}
             {/* <a href="https://suda.bce.baidu.com" target="_blank">
               爱速搭
             </a> */}
@@ -404,14 +416,17 @@ export class App extends React.PureComponent<{
   renderNavigation() {
     return (
       <div className="Doc-navigation">
-        <InputBox
-          theme={this.state.theme.value}
-          placeholder={'过滤...'}
-          value={this.state.filter || ''}
-          onChange={this.setNavigationFilter}
+        <SearchBox
           className="m-b m-r-md"
-          clearable={false}
+          placeholder="输入组件名称"
+          value={this.state.filter}
+          onSearch={this.setNavigationFilter}
+          onChange={this.setNavigationFilter}
+          clearable={true}
+          mini={false}
+          history={{enable: true}}
         />
+
         {this.renderAsideNav()}
       </div>
     );
@@ -553,7 +568,7 @@ export class App extends React.PureComponent<{
 
   renderContent() {
     const locale = 'zh-CN'; // 暂时不支持切换，因为目前只有中文文档
-    const theme = this.state.theme;
+    const {theme} = this.state;
 
     return (
       <React.Suspense
@@ -850,7 +865,6 @@ export function navigations2route(
 
 export default function entry() {
   // PathPrefix = pathPrefix || DocPathPrefix;
-
   return (
     <Router>
       <Switch>

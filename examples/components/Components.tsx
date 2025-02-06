@@ -76,6 +76,13 @@ export const components = [
         )
       },
       {
+        label: 'Pagination分页',
+        path: '/zh-CN/components/pagination',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/pagination.md').then(wrapDoc)
+        )
+      },
+      {
         label: 'PaginationWrapper 分页容器',
         path: '/zh-CN/components/pagination-wrapper',
         component: React.lazy(() =>
@@ -180,6 +187,7 @@ export const components = [
           import('../../docs/zh-CN/components/nav.md').then(wrapDoc)
         )
       },
+
       {
         label: 'AnchorNav 锚点导航',
         path: '/zh-CN/components/anchor-nav',
@@ -219,6 +227,13 @@ export const components = [
         path: '/zh-CN/components/form/formitem',
         component: React.lazy(() =>
           import('../../docs/zh-CN/components/form/formitem.md').then(wrapDoc)
+        )
+      },
+      {
+        label: 'Control 表单项包裹',
+        path: '/zh-CN/components/form/control',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/form/control.md').then(wrapDoc)
         )
       },
       {
@@ -367,6 +382,13 @@ export const components = [
         path: '/zh-CN/components/form/input-kv',
         component: React.lazy(() =>
           import('../../docs/zh-CN/components/form/input-kv.md').then(wrapDoc)
+        )
+      },
+      {
+        label: 'InputKVS 键值对象',
+        path: '/zh-CN/components/form/input-kvs',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/form/input-kvs.md').then(wrapDoc)
         )
       },
       {
@@ -542,6 +564,15 @@ export const components = [
           ).then(wrapDoc)
         )
       },
+
+      {
+        label: 'Radio 单选框',
+        path: '/zh-CN/components/form/radio',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/form/radio.md').then(wrapDoc)
+        )
+      },
+
       {
         label: 'Radios 单选框',
         path: '/zh-CN/components/form/radios',
@@ -551,7 +582,7 @@ export const components = [
       },
 
       {
-        label: 'Chart 单选框',
+        label: 'ChartRadios 图表单选框',
         path: '/zh-CN/components/form/chart-radios',
         component: React.lazy(() =>
           import('../../docs/zh-CN/components/form/chart-radios.md').then(
@@ -734,6 +765,45 @@ export const components = [
             wrapDoc
           )
         )
+      },
+
+      {
+        label: 'JsonSchema',
+        path: '/zh-CN/components/form/json-schema',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/form/json-schema.md').then(
+            wrapDoc
+          )
+        )
+      },
+
+      {
+        label: 'JsonSchema Editor',
+        path: '/zh-CN/components/form/json-schema-editor',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/form/json-schema-editor.md').then(
+            wrapDoc
+          )
+        )
+      },
+
+      {
+        label: 'InputSignature 签名面板',
+        path: '/zh-CN/components/form/input-signature',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/form/input-signature.md').then(
+            wrapDoc
+          )
+        )
+      },
+      {
+        label: 'InputVerificationCode 验证码',
+        path: '/zh-CN/components/form/input-verification-code',
+        component: React.lazy(() =>
+          import(
+            '../../docs/zh-CN/components/form/input-verification-code.md'
+          ).then(wrapDoc)
+        )
       }
     ]
   },
@@ -754,6 +824,13 @@ export const components = [
         path: '/zh-CN/components/table',
         component: React.lazy(() =>
           import('../../docs/zh-CN/components/table.md').then(wrapDoc)
+        )
+      },
+      {
+        label: 'Table2 表格',
+        path: '/zh-CN/components/table2',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/table2.md').then(wrapDoc)
         )
       },
       {
@@ -909,10 +986,40 @@ export const components = [
         )
       },
       {
+        label: 'Number 展示',
+        path: '/zh-CN/components/number',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/number.md').then(wrapDoc)
+        )
+      },
+      {
         label: 'Markdown 渲染',
         path: '/zh-CN/components/markdown',
         component: React.lazy(() =>
           import('../../docs/zh-CN/components/markdown.md').then(wrapDoc)
+        )
+      },
+      {
+        label: 'OfficeViewer Word 渲染',
+        path: '/zh-CN/components/office-viewer',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/office-viewer.md').then(wrapDoc)
+        )
+      },
+      {
+        label: 'OfficeViewer Excel 渲染',
+        path: '/zh-CN/components/office-viewer-excel',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/office-viewer-excel.md').then(
+            wrapDoc
+          )
+        )
+      },
+      {
+        label: 'PDFViewer 渲染',
+        path: '/zh-CN/components/pdf-viewer',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/pdf-viewer.md').then(wrapDoc)
         )
       },
       {
@@ -988,6 +1095,13 @@ export const components = [
         )
       },
       {
+        label: 'Tag 标签',
+        path: '/zh-CN/components/tag',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/tag.md').then(wrapDoc)
+        )
+      },
+      {
         label: 'Video 视频',
         path: '/zh-CN/components/video',
         component: React.lazy(() =>
@@ -999,6 +1113,13 @@ export const components = [
         path: '/zh-CN/components/timeline',
         component: React.lazy(() =>
           import('../../docs/zh-CN/components/timeline.md').then(wrapDoc)
+        )
+      },
+      {
+        label: 'Shape 形状',
+        path: '/zh-CN/components/shape',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/shape.md').then(wrapDoc)
         )
       }
     ]
@@ -1091,6 +1212,13 @@ export const components = [
         component: React.lazy(() =>
           import('../../docs/zh-CN/components/web-component.md').then(wrapDoc)
         )
+      },
+      {
+        label: 'amis 渲染器',
+        path: '/zh-CN/components/amis',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/components/amis.md').then(wrapDoc)
+        )
       }
     ]
   }
@@ -1098,7 +1226,7 @@ export const components = [
 
 export default class Components extends React.PureComponent<any> {
   componentDidMount() {
-    this.props.setNavigations(components);
+    this.props.setNavigations(components, false);
   }
 
   componentDidUpdate(preProps: any) {

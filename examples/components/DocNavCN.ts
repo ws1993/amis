@@ -28,10 +28,10 @@ export default [
       },
 
       {
-        label: '1.2.0 版本变更',
-        path: '/zh-CN/docs/start/1-2-0',
+        label: '更新记录',
+        path: '/zh-CN/docs/start/changelog',
         component: React.lazy(() =>
-          import('../../docs/zh-CN/start/1-2-0.md').then(wrapDoc)
+          import('../../docs/zh-CN/start/changelog.md').then(wrapDoc)
         )
       },
 
@@ -214,6 +214,13 @@ export default [
         path: '/zh-CN/docs/extend/i18n',
         component: React.lazy(() =>
           import('../../docs/zh-CN/extend/i18n.md').then(wrapDoc)
+        )
+      },
+      {
+        label: '可视化编辑器',
+        path: '/zh-CN/docs/extend/editor',
+        component: React.lazy(() =>
+          import('../../docs/zh-CN/extend/editor.md').then(wrapDoc)
         )
       },
       {

@@ -1,31 +1,43 @@
 import './polyfills/index';
 import React from 'react';
-import {render as renderReact, unmountComponentAtNode} from 'react-dom';
+import {createRoot} from 'react-dom/client';
 import axios from 'axios';
 import {match} from 'path-to-regexp';
 import copy from 'copy-to-clipboard';
-import {normalizeLink} from '../src/utils/normalizeLink';
+import {normalizeLink, supportsMjs} from 'amis-core';
 
 import qs from 'qs';
-import {
-  toast,
-  alert,
-  confirm,
-  ToastComponent,
-  AlertComponent,
-  render as renderAmis,
-  makeTranslator
-} from '../src/index';
+import {alert, confirm} from 'amis-ui/lib/components/Alert';
+import {toast, default as ToastComponent} from 'amis-ui/lib/components/Toast';
+import AlertComponent from 'amis-ui/lib/components/Alert';
+import {render as renderAmis, makeTranslator} from 'amis-core';
+import 'amis/lib/minimal';
 
-import '../src/locale/en-US';
+import 'amis-ui/lib/locale/en-US';
+import 'amis-ui/lib/locale/zh-CN';
+import 'amis-ui/lib/locale/en-US';
+import 'amis-ui/lib/locale/de-DE';
+import 'amis-ui/lib/themes/cxd';
+import 'amis-ui/lib/themes/ang';
+import 'amis-ui/lib/themes/antd';
+import 'amis-ui/lib/themes/dark';
+
 import 'history';
-import attachmentAdpator from '../src/utils/attachmentAdpator';
+import {attachmentAdpator, setGlobalOptions} from 'amis-core';
+import {pdfUrlLoad} from './loadPdfjsWorker';
+
+import type {ToastLevel, ToastConf} from 'amis-ui/lib/components/Toast';
+
+setGlobalOptions({
+  pdfjsWorkerSrc: supportsMjs() ? pdfUrlLoad() : ''
+});
 
 export function embed(
   container: string | HTMLElement,
   schema: any,
-  props?: any,
-  env?: any
+  props: any = {},
+  env?: any,
+  callback?: () => void
 ) {
   const __ = makeTranslator(env?.locale || props?.locale);
 
@@ -41,47 +53,47 @@ export function embed(
     container = div;
   }
   container.classList.add('amis-scope');
-  let scoped: any;
+  let scoped = {};
 
-  const requestAdaptor = (config: any) => {
+  const requestAdaptor = async (config: any) => {
     const fn =
       env && typeof env.requestAdaptor === 'function'
         ? env.requestAdaptor.bind()
-        : (config: any) => config;
-    const request = fn(config) || config;
+        : async (config: any) => config;
+    const request = (await fn(config)) || config;
 
     return request;
   };
 
-  const responseAdaptor = (api: any) => (value: any) => {
-    let response = value.data || {}; // blob 下可能会返回内容为空？
+  const responseAdaptor = (api: any) => (response: any) => {
+    let payload = response.data || {}; // blob 下可能会返回内容为空？
     // 之前拼写错了，需要兼容
     if (env && env.responseAdpater) {
       env.responseAdaptor = env.responseAdpater;
     }
     if (env && env.responseAdaptor) {
       const url = api.url;
-      const idx = api.url.indexOf('?');
-      const query = ~idx ? qs.parse(api.url.substring(idx)) : {};
+      const idx = url.indexOf('?');
+      const query = ~idx ? qs.parse(url.substring(idx)) : {};
       const request = {
         ...api,
         query: query,
         body: api.data
       };
-      response = env.responseAdaptor(api, response, query, request);
+      payload = env.responseAdaptor(api, payload, query, request, response);
     } else {
-      if (response.hasOwnProperty('errno')) {
-        response.status = response.errno;
-        response.msg = response.errmsg;
-      } else if (response.hasOwnProperty('no')) {
-        response.status = response.no;
-        response.msg = response.error;
+      if (payload.hasOwnProperty('errno')) {
+        payload.status = payload.errno;
+        payload.msg = payload.errmsg;
+      } else if (payload.hasOwnProperty('no')) {
+        payload.status = payload.no;
+        payload.msg = payload.error;
       }
     }
 
     const result = {
-      ...value,
-      data: response
+      ...response,
+      data: payload
     };
     return result;
   };
@@ -89,8 +101,10 @@ export function embed(
   const amisEnv = {
     getModalContainer: () =>
       env?.getModalContainer?.() || document.querySelector('.amis-scope'),
-    notify: (type: 'success' | 'error' | 'warning' | 'info', msg: string) =>
-      toast[type] ? toast[type](msg) : console.warn('[Notify]', type, msg),
+    notify: (type: ToastLevel, msg: string, conf?: ToastConf) =>
+      toast[type]
+        ? toast[type](msg, conf)
+        : console.warn('[Notify]', type, msg),
     alert,
     confirm,
     updateLocation: (to: any, replace: boolean) => {
@@ -179,7 +193,7 @@ export function embed(
       config.method = method;
       config.data = data;
 
-      config = requestAdaptor(config);
+      config = await requestAdaptor(config);
 
       if (method === 'get' && data) {
         config.params = data;
@@ -200,8 +214,10 @@ export function embed(
         return true;
       };
 
-      let response = await axios(config);
-      response = await attachmentAdpator(response, __);
+      let response = config.mockResponse
+        ? config.mockResponse
+        : await axios(config);
+      response = await attachmentAdpator(response, __, api);
       response = responseAdaptor(api)(response);
 
       if (response.status >= 400) {
@@ -241,6 +257,7 @@ export function embed(
     },
     richTextToken: '',
     affixOffsetBottom: 0,
+    customStyleClassPrefix: '.amis-scope',
     ...env
   };
 
@@ -249,13 +266,24 @@ export function embed(
     amisProps = {
       ...amisProps,
       ...props,
-      scopeRef: (ref: any) => (scoped = ref)
+      scopeRef: (ref: any) => {
+        if (ref) {
+          Object.keys(ref).forEach(key => {
+            let value = ref[key];
+            if (typeof value === 'function') {
+              value = value.bind(ref);
+            }
+            (scoped as any)[key] = value;
+          });
+          callback?.();
+        }
+      }
     };
 
     return (
       <div className="amis-routes-wrapper">
         <ToastComponent
-          position={(env && env.toastPosition) || 'top-right'}
+          position={(env && env.toastPosition) || 'top-center'}
           closeButton={false}
           timeout={5000}
           locale={props?.locale}
@@ -272,15 +300,19 @@ export function embed(
     );
   }
 
-  renderReact(createElements(props), container);
+  const root = createRoot(container);
+  root.render(createElements(props));
 
-  return {
-    ...scoped,
+  return Object.assign(scoped, {
     updateProps: (props: any, callback?: () => void) => {
-      renderReact(createElements(props), container as HTMLElement, callback);
+      root.render(createElements(props));
+    },
+    updateSchema: (newSchema: any, props = {}) => {
+      schema = newSchema;
+      root.render(createElements(props));
     },
     unmount: () => {
-      unmountComponentAtNode(container as HTMLElement);
+      root.unmount();
     }
-  };
+  });
 }

@@ -1,10 +1,11 @@
 // cfc 入口。
 exports.handler = (event, context, callback) => {
   try {
+    // @ts-ignore
     const entry = require('./mock/index');
     entry(mockRequest(event, context), mockResponse(event, context, callback));
   } catch (e) {
-    callback(e.stack);
+    callback(e);
   }
 };
 
@@ -37,15 +38,28 @@ function mockResponse(event, context, callback) {
         body: JSON.stringify(json)
       });
     },
-    send(res) {
+    send(res, headers = {}) {
       callback(null, {
         statusCode: 200,
         headers: {
           ...createHeaders(event.headers),
-          'Content-Type': 'text/javascript'
+          'Content-Type': 'text/javascript',
+          ...headers
         },
         json: false,
         body: res
+      });
+    },
+    download(file) {
+      callback(null, {
+        statusCode: 200,
+        headers: {
+          ...createHeaders(event.headers),
+          'Content-Type': 'application/octet-stream',
+          'Content-Disposition': `attachment; filename="${file}"`
+        },
+        json: false,
+        download: file
       });
     }
   };
@@ -54,7 +68,11 @@ function mockResponse(event, context, callback) {
 function createHeaders(headers) {
   let referer = '';
 
-  if (/^(https?\:\/\/[^:\/]+(?:\:\d+)?\/)/i.test(headers['Referer'])) {
+  if (
+    /^(https?\:\/\/[^:\/]+(?:\:\d+)?\/)/i.test(
+      headers['Referer'] || headers['referer']
+    )
+  ) {
     referer = RegExp.$1.replace(/\/$/, '');
   }
 
@@ -62,7 +80,7 @@ function createHeaders(headers) {
     'Content-Type': 'Application/json',
     'Access-Control-Allow-Headers': 'x-requested-with,content-type',
     'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS,HEAD',
-    'Access-Control-Allow-Credentials': 'true',
-    'Access-Control-Allow-Origin': referer ? `${referer}` : '*'
+    'Access-Control-Allow-Origin': referer ? `${referer}` : '*',
+    'Access-Control-Allow-Credentials': 'true'
   };
 }

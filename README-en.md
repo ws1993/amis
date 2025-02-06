@@ -1,59 +1,115 @@
-# amis
+<div align="center">
+  <p>
+    <img width="284" src="https://github.com/baidu/amis/raw/master/examples/static/logo.png">
+  </p>
 
-A Low-Code frontend UI Framework. You can quickly develop various management pages by only using JSON configuration. Frontend skill is not required.
+[Documentation (China)](https://aisuda.bce.baidu.com/amis/) |
+[Documentation (Global)](https://baidu.github.io/amis/) |
+[Visual Editor](https://aisuda.github.io/amis-editor-demo/) |
+[amis-admin](https://github.com/aisuda/amis-admin) |
+[AiSuDa](https://aisuda.baidu.com/)
 
-Currently used in Baidu's internal infrastructure, created more than 40000 pages.
+</div>
 
-To build your own backend system with amis, you can refer to this: https://github.com/fex-team/amis-admin
+<div align="center">
+  Ruliu Group: 3395342 |
+  Ruliu Group 2: 5511067 |
+</div>
 
-## Quick start
+<div align="center">
 
-```
-# Install project npm dependencies.
+![build](https://img.shields.io/github/actions/workflow/status/baidu/amis/gh-pages.yml)
+![license](https://img.shields.io/github/license/baidu/amis.svg)
+![version](https://img.shields.io/npm/v/amis)
+![language](https://img.shields.io/github/languages/top/baidu/amis)
+[![codecov](https://codecov.io/gh/baidu/amis/branch/master/graph/badge.svg?token=9LwimHGoE5)](https://codecov.io/gh/baidu/amis)
+![last](https://img.shields.io/github/last-commit/baidu/amis.svg)
+
+</div>
+
+A low-code front-end framework that allows you to generate various backend pages using JSON configuration, greatly reducing development costs, and even eliminating the need for front-end expertise.
+
+## Development Guide
+
+The following is for those who want to contribute to the development of amis. For usage, refer to the documentation above.
+
+> If GitHub downloads are slow, you can use the mirror on [gitee](https://gitee.com/baidu/amis).
+
+Node.js versions 12/14/16 are recommended. Use npm 7+ because the workspaces feature is required.
+
+```bash
+# Install project dependencies. There may be errors with Node.js 12, but they don't affect normal use.
 npm i --legacy-peer-deps
 
-# Start compiling and output the code to the webroot directory of the service you just opened.
-npm run dev
-
-# Open the fis3 service, please visit http://127.0.0.1:8888/examples/pages/simple.
+# Start the project. Once compilation is complete, access it at http://127.0.0.1:8888/examples/pages/simple.
 npm start
 ```
 
-## Testing
+If you're developing the editor, access it at `http://127.0.0.1:8888/packages/amis-editor/`.
+
+### Testing
+
+> Note: After modifying code locally, you must run npm run build to complete compilation before executing test cases (`npm test --workspaces`), as Jest doesn't support TypeScript directly.
 
 ```bash
-#Installation dependency
+# Install dependencies
 npm i --legacy-peer-deps
 
-#Executing test cases
-npm test
+# Build the project
+npm run build
 
-# View test case coverage
+# Run all test cases
+npm test --workspaces
+
+# Run a specific test case
+# <spec-name> is the name of the test case, e.g., inputImage
+npm test --workspace amis -- -t <spec-name>
+
+# Run a specific test file
+./node_modules/.bin/jest packages/amis/__tests__/renderers/Form/buttonToolBar.test.tsx
+
+# Run a specific example in a test file
+./node_modules/.bin/jest packages/amis/__tests__/renderers/Form/buttonToolBar.test.tsx -t 'Renderer:button-toolbar'
+
+# View test coverage
 npm run coverage
+
+# Update snapshots
+npm run update-snapshot
+
+# Update a single snapshot
+# <spec-name> is the name of the test case, e.g., inputImage
+npm run update-snapshot --workspace amis -- -t <spec-name>
 ```
 
-## Working with documents
+### Release Version
 
-For a better reading experience, it is recommended to read https://baidu.github.io/amis/ directly in gh-pages.
+```bash
+# Publish to internal registry
+npm run publish
 
-- [Quick Start](/docs/getting_started.md)
-- [Basic Usage](/docs/basic.md)
-- [Advanced Usage](/docs/advanced.md)
-- [Render Manual](/docs/renderers.md)
-- [How to customize](/docs/sdk.md)
-- [custom component](/docs/dev.md)
-- [Auxiliary Style](/docs/style.md)
+# Publish to external environment
+# First, set the version number with the following command
+npm run version
+npm run release
+```
 
-## How to contribute
+### How to Contribute
 
-Please write in typescript, all reasonable changes, new public renderers, use cases, or document submissions will be received.
+Please use a branch for development. First, create a branch:
 
-## Maintainer
+    git checkout -b feat-xxx
 
-- [2betop](https://github.com/2betop)
-- [RickCole21](https://github.com/RickCole21)
-- [catchonme](https://github.com/catchonme)
+After committing your changes, use `git push --set-upstream origin feat-xxx` to create a remote branch.
 
-## Discussion
+Then submit a PR using the system-generated link: https://github.com/xxx/amis/pull/new/feat-xxx.
 
-Welcome to ISSUE for discussion.
+Please write in TypeScript. All reasonable changes, new public renderers, test cases, or documentation submissions will be accepted.
+
+## Contributors
+
+<a href="https://github.com/baidu/amis/graphs/contributors"><img src="https://opencollective.com/amis/contributors.svg?width=890" /></a>
+
+## Low-Code Platform
+
+amis enables low-code front-end development. For a complete low-code platform, we recommend using [AiSuDa](https://aisuda.baidu.com/).

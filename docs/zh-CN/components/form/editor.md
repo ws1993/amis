@@ -20,7 +20,8 @@ order: 19
         {
             "type": "editor",
             "name": "editor",
-            "label": "编辑器"
+            "label": "编辑器",
+            placeholder: "function() {\n  console.log('hello world')\n}"
         }
     ]
 }
@@ -124,13 +125,198 @@ order: 19
 }
 ```
 
+## 编辑器自定义开发
+
+amis 的编辑器是基于 monaco 开发的，如果想进行深度定制，比如自动完成功能，可以通过自定义 `editorDidMount` 属性来获取到 monaco 实例，它有两种写法，一种是在 JS 中直接用函数，示例如下：
+
+```javascript
+{
+    "type": "form",
+    "api": "/api/mock2/form/saveForm",
+    "body": [
+        {
+            "type": "editor",
+            "name": "editor",
+            "label": "编辑器",
+            "language": "myLan",
+            "editorDidMount": (editor, monaco) => {
+                // editor 是 monaco 实例，monaco 是全局的名称空间
+                const dispose = monaco.languages.registerCompletionItemProvider('myLan', {
+                    /// 其他细节参考 monaco 手册
+                });
+
+                // 如果返回一个函数，这个函数会在编辑器组件卸载的时候调用，主要用于清理资源
+                return dispose;
+            }
+        }
+    ]
+}
+```
+
 ## 属性表
 
 除了支持 [普通表单项属性表](./formitem#%E5%B1%9E%E6%80%A7%E8%A1%A8) 中的配置以外，还支持下面一些配置
 
-| 属性名          | 类型      | 默认值       | 说明                                                                                                                                                                                                     |
-| --------------- | --------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| language        | `string`  | `javascript` | 编辑器高亮的语言，支持通过 `${xxx}` 变量获取                                                                                                                                                             |
-| size            | `string`  | `md`         | 编辑器高度，取值可以是 `md`、`lg`、`xl`、`xxl`                                                                                                                                                           |
-| allowFullscreen | `boolean` | `false`      | 是否显示全屏模式开关                                                                                                                                                                                     |
-| options         | `object`  |              | monaco 编辑器的其它配置，比如是否显示行号等，请参考[这里](https://microsoft.github.io/monaco-editor/api/enums/monaco.editor.EditorOption.html)，不过无法设置 readOnly，只读模式需要使用 `disabled: true` |
+| 属性名          | 类型      | 默认值       | 说明                                                                                                                                                                                                           |
+| --------------- | --------- | ------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| language        | `string`  | `javascript` | 编辑器高亮的语言，支持通过 `${xxx}` 变量获取                                                                                                                                                                   |
+| size            | `string`  | `md`         | 编辑器高度，取值可以是 `md`、`lg`、`xl`、`xxl`                                                                                                                                                                 |
+| allowFullscreen | `boolean` | `false`      | 是否显示全屏模式开关                                                                                                                                                                                           |
+| options         | `object`  |              | monaco 编辑器的其它配置，比如是否显示行号等，请参考[这里](https://microsoft.github.io/monaco-editor/docs.html#interfaces/editor.IEditorOptions.html)，不过无法设置 readOnly，只读模式需要使用 `disabled: true` |
+| placeholder     | `string`  |              | 占位描述，没有值的时候展示                                                                                                                                                                                     |
+
+## 事件表
+
+当前组件会对外派发以下事件，可以通过`onEvent`来监听这些事件，并通过`actions`来配置执行的动作，在`actions`中可以通过`${事件参数名}`或`${event.data.[事件参数名]}`来获取事件产生的数据，详细请查看[事件动作](../../docs/concepts/event-action)。
+
+> `[name]`表示当前组件绑定的名称，即`name`属性，如果没有配置`name`属性，则通过`value`取值。
+
+| 事件名称 | 事件参数                  | 说明                 |
+| -------- | ------------------------- | -------------------- |
+| change   | `[name]: string` 组件的值 | 代码变化时触发       |
+| focus    | `[name]: string` 组件的值 | 输入框获取焦点时触发 |
+| blur     | `[name]: string` 组件的值 | 输入框失去焦点时触发 |
+
+## 动作表
+
+当前组件对外暴露以下特性动作，其他组件可以通过指定`actionType: 动作名称`、`componentId: 该组件id`来触发这些动作，动作配置可以通过`args: {动作配置项名称: xxx}`来配置具体的参数，详细请查看[事件动作](../../docs/concepts/event-action#触发其他组件的动作)。
+
+| 动作名称 | 动作配置                 | 说明                                             |
+| -------- | ------------------------ | ------------------------------------------------ |
+| clear    | -                        | 清空                                             |
+| reset    | -                        | 将值重置为初始值。6.3.0 及以下版本为`resetValue` |
+| focus    | -                        | 获取焦点                                         |
+| setValue | `value: string` 更新的值 | 更新数据                                         |
+
+### clear
+
+```schema: scope="body"
+{
+    "type": "form",
+    "debug": true,
+    "body": [
+        {
+            "type": "editor",
+            "name": "editor",
+            "label": "编辑器",
+            "id": "clear_text",
+            "value": "hello"
+        },
+        {
+            "type": "button",
+            "label": "清空",
+            "onEvent": {
+                "click": {
+                    "actions": [
+                        {
+                            "actionType": "clear",
+                            "componentId": "clear_text"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
+```
+
+### reset
+
+如果配置了`resetValue`，则重置时使用`resetValue`的值，否则使用初始值。
+
+```schema: scope="body"
+{
+    "type": "form",
+    "debug": true,
+    "body": [
+        {
+            "type": "editor",
+            "id": "reset_text",
+            "name": "editor",
+            "label": "编辑器",
+            "value": "hello"
+        },
+        {
+            "type": "button",
+            "label": "重置",
+            "onEvent": {
+                "click": {
+                    "actions": [
+                        {
+                            "actionType": "reset",
+                            "componentId": "reset_text"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
+```
+
+### focus
+
+```schema: scope="body"
+{
+    "type": "form",
+    "debug": true,
+    "body": [
+        {
+            "type": "editor",
+            "id": "focus_text",
+            "name": "editor",
+            "label": "编辑器",
+            "value": "hello"
+        },
+        {
+            "type": "button",
+            "label": "聚焦",
+            "onEvent": {
+                "click": {
+                    "actions": [
+                        {
+                            "actionType": "focus",
+                            "componentId": "focus_text"
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
+```
+
+### setValue
+
+```schema: scope="body"
+{
+    "type": "form",
+    "debug": true,
+    "body": [
+        {
+            "type": "editor",
+            "id": "setvalue_text",
+            "name": "editor",
+            "label": "编辑器",
+            "value": "hello"
+        },
+        {
+            "type": "button",
+            "label": "赋值",
+            "onEvent": {
+                "click": {
+                    "actions": [
+                        {
+                            "actionType": "setValue",
+                            "componentId": "setvalue_text",
+                            "args": {
+                                "value": "amis go go go!"
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    ]
+}
+```
